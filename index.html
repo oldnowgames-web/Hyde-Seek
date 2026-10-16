@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#050505">
+<meta name="color-scheme" content="dark">
+<meta name="mobile-web-app-capable" content="yes">
+<title>Hyde &amp; Seek — Um caso de Londres</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IM+Fell+English:ital@0;1&family=Special+Elite&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div id="app">
+
+  <section id="title">
+    <div class="titlewrap">
+      <h1 class="logo" aria-label="Hyde &amp; Seek"><span class="up">Seek</span><span class="down" aria-hidden="true">Hyde</span></h1>
+      <p class="sub">Um caso de Londres, 1886</p>
+      <div class="menu">
+        <button id="btnNew">Começar investigação</button>
+        <button id="btnCont" hidden>Continuar</button>
+      </div>
+      <p class="fine">Inspirado em <i>O Estranho Caso do Dr. Jekyll e do Sr. Hyde</i>, de R. L. Stevenson. Contém violência e temas sombrios. Toque (ou clique) nos pontos da cena para investigar. O botão Pontos revela o que dá para examinar.<span class="kbd"> Atalhos: H, M e I.</span></p>
+    </div>
+  </section>
+
+  <section id="game" hidden>
+    <header id="bar">
+      <div id="place"></div>
+      <div id="using" hidden><span></span><button id="unuse" aria-label="Guardar a prova">✕</button></div>
+    </header>
+
+    <nav class="dock" aria-label="Ações">
+      <button id="bMap"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6l6-2 6 2 6-2v14l-6 2-6-2-6 2z"/><path d="M9 4v14M15 6v14"/></svg><span class="lb">Mapa</span></button>
+      <button id="bEv"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg><span class="lb">Provas</span><b id="count" hidden>0</b></button>
+      <button id="bHint"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.7.4-1 .9-1 1.7"/><circle cx="12" cy="17" r=".7" fill="currentColor"/></svg><span class="lb">Dica</span></button>
+      <button id="bHot" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 3v4M12 17v4M3 12h4M17 12h4"/></svg><span class="lb">Pontos</span></button>
+      <button id="bSnd" aria-pressed="true"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9z"/><path class="waves" d="M16 9a4 4 0 0 1 0 6M18.5 6.5a8 8 0 0 1 0 11"/><path class="slash" d="M17 9l5 6M22 9l-5 6"/></svg><span class="lb">Som</span></button>
+    </nav>
+
+    <main id="stage">
+      <div id="sceneScroll">
+        <div id="sceneWrap">
+          <svg id="scene" viewBox="0 0 1280 640" role="group" aria-label="Cena do jogo"></svg>
+          <canvas id="rain"></canvas>
+          <div id="tip" hidden></div>
+          <div id="flash"></div>
+        </div>
+      </div>
+      <div id="toast" hidden role="status"></div>
+      <div id="pan" hidden>Deslize para os lados para ver a cena toda</div>
+    </main>
+
+    <footer id="textbox" aria-live="polite">
+      <div id="tbScroll">
+        <div id="speaker"></div>
+        <p id="line"></p>
+        <div id="choices"></div>
+      </div>
+      <span id="cue" hidden>▾</span>
+    </footer>
+  </section>
+
+  <div id="mapView" class="overlay" role="dialog" aria-modal="true" aria-label="Mapa" hidden>
+    <div class="panel wide">
+      <h2>Londres</h2>
+      <div id="mapSvg"></div>
+      <div id="mapList"></div>
+      <button data-close>Fechar</button>
+    </div>
+  </div>
+
+  <div id="evView" class="overlay" role="dialog" aria-modal="true" aria-label="Provas" hidden>
+    <div class="panel wide">
+      <h2>Provas e depoimentos</h2>
+      <div id="evList"></div>
+      <button data-close>Fechar</button>
+    </div>
+  </div>
+
+  <div id="boardView" class="overlay" role="dialog" aria-modal="true" aria-label="Quadro do caso" hidden>
+    <div class="panel wide">
+      <h2>O quadro do caso</h2>
+      <p class="lead">Ligue duas provas que respondam a cada pergunta.</p>
+      <div id="qList"></div>
+      <button id="finalBtn" class="big" hidden>Abrir a carta de Lanyon</button>
+      <button data-close>Fechar</button>
+    </div>
+  </div>
+
+  <div id="letterView" class="overlay" role="dialog" aria-modal="true" aria-label="Carta de Lanyon" hidden>
+    <div class="panel letter">
+      <p>Henry,</p>
+      <p>Se você lê isto, Carew não chegou vivo ao seu escritório, e eu já estou em paz, ou em algum lugar onde a paz não tem importância.</p>
+      <p>Na noite de 3 de setembro você me pediu que fechasse as cortinas do laboratório. Eu fechei. Vi você beber da taça. Vi suas mãos encolherem, a sua altura ceder, o seu rosto virar o rosto de algo que a minha profissão não sabe nomear. E ouvi o seu riso, Henry. Ouvi o seu riso saindo da boca dele.</p>
+      <p>Chamam-no Hyde. Eu o chamo pelo que é: a parte de você que nunca teve coragem de assumir.</p>
+      <p>Não lhe escrevo para condená-lo. Escrevo para que um dia você se lembre. Quem busca, Henry, às vezes encontra o próprio reflexo.</p>
+      <p class="sign">— H. Lanyon</p>
+      <button id="letterOk">Continuar</button>
+    </div>
+  </div>
+
+  <div id="paperView" class="overlay" role="dialog" aria-modal="true" aria-label="Jornal" hidden>
+    <div class="panel letter news">
+      <p class="masthead">The London Gazette</p>
+      <p class="dateline">Sexta-feira, 8 de outubro de 1886</p>
+      <h2 class="headline">Hyde ainda está solto</h2>
+      <p class="deck">Preso pela Yard, Richard Enfield jura inocência. Na noite seguinte, um novo bilhete.</p>
+      <div class="cols">
+        <p>A Scotland Yard anunciou na quinta-feira a prisão de Richard Enfield, apontado pelo Inspetor H. Seek como o homem por trás dos bilhetes assinados “E. Hyde” e da morte de Sir Danvers Carew. O comissário Newcomen falou em caso encerrado.</p>
+        <p>Na madrugada desta sexta, porém, um comerciante foi espancado a bengaladas no Soho. Ao lado do corpo, um bilhete de letra inclinada para trás: “Não tenho pena nenhuma. — E. Hyde.” Enfield estava na cela 3 desde a véspera.</p>
+        <p>Perguntado pela imprensa, o Inspetor Seek recusou-se a comentar. Foi visto deixando a Yard a pé, sozinho, de chapéu. Londres já chama Hyde de o fantasma que a polícia não sabe prender.</p>
+      </div>
+      <button id="paperOk">Continuar</button>
+    </div>
+  </div>
+
+  <div id="shatterView" hidden role="dialog" aria-modal="true" aria-label="Fim: o Reflexo">
+    <div id="shatterStage"></div>
+    <div class="sflash"></div>
+    <div id="shatterEnd"><h2>Fim: o Reflexo</h2><p>Toque para voltar ao menu</p></div>
+  </div>
+
+  <div id="endView" class="overlay end" role="dialog" aria-modal="true" aria-label="Fim" hidden>
+    <div class="panel letter">
+      <h2 id="endTitle"></h2>
+      <div id="endText"></div>
+      <button id="again">Jogar de novo</button>
+    </div>
+  </div>
+
+</div>
+<script src="art.js"></script>
+<script src="data.js"></script>
+<script src="game.js"></script>
+</body>
+</html>
